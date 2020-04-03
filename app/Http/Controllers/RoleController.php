@@ -51,9 +51,13 @@ class RoleController extends Controller
      */
     public function update(Request $request)
     {
-        $data = $request->only(['name','guard_name']);
+        $data = $request->only(['name','guard_name','slug']);
         $model = Model::find($request->id);
         $model->update($data);
+        if($request->permission_ids)
+        {
+            $model->syncPermissions(Permission::find($request->permission_ids));
+        }
         return response()->json(['code'=>1,'msg'=>'成功','data'=>$model]);
     }
 
