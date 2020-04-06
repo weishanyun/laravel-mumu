@@ -31,7 +31,7 @@ class AdminUser extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token','roles'
     ];
 
     /**
@@ -41,6 +41,11 @@ class AdminUser extends Authenticatable implements JWTSubject
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+    ];
+
+    //添加自定义属性
+    protected $appends = [
+        'menulist'
     ];
 
 
@@ -71,9 +76,10 @@ class AdminUser extends Authenticatable implements JWTSubject
 
     public function isRoot()
     {
-        return $this->name === 'admin';
+        return $this->name === 'admin'|| $this->roles[0]->slug === 'root';
     }
 
+    //判断是否有该路由的权限
     public function canAccessRoute(Request $request)
     {
 
@@ -87,5 +93,21 @@ class AdminUser extends Authenticatable implements JWTSubject
             return $name==$slug?true:false;
         });
         return $filterd->count();
+    }
+    //设置自定属性(左侧菜单栏)
+    public function getMenulistAttribute()
+    {
+        $muntList = [];
+        $roles = $this->roles;
+        foreach ($roles as $role)
+        {
+            if($role->slug=='root')
+            {
+                $muntList = Permission::with('childrenlist')->where(['pid'=>0])->get();
+                break;
+            }
+            $muntList = $muntList + $role->menulisttree->toArray();
+        }
+        return $muntList;
     }
 }

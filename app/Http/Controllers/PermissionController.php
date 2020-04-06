@@ -9,7 +9,7 @@ class PermissionController extends Controller
 {
     public function index(Request $request)
     {
-        $list = Model::all();
+        $list = Model::with('children')->where(['pid'=>0])->get();
         return response()->json(['code'=>1,'msg'=>'成功','data'=>$list]);
     }
 

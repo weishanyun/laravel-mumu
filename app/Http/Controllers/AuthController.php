@@ -27,7 +27,7 @@ class AuthController extends Controller
 //            return $this->sendLockoutResponse($request);
 //        }
 //        $this->incrementLoginAttempts($request);
-        $credentials = $request->only(['user', 'password']);
+        $credentials = $request->only(['username', 'password']);
         $credentials['status'] = 1;
         if (! $token = auth('api')->attempt($credentials)) {
             return new JsonResponse([
